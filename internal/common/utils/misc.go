@@ -109,3 +109,15 @@ func LoadSchemas(cfg *viper.Viper, schemaNames []string) (schemas []*jsonschema.
 	}
 	return
 }
+
+type apiVersionCtxKeyType string
+
+const apiCtxKey apiVersionCtxKeyType = "api_version"
+
+func WithApiVersion(ctx context.Context, value string) context.Context {
+	return context.WithValue(ctx, apiCtxKey, value)
+}
+
+func GetApiVersion(ctx context.Context) string {
+	return ctx.Value(apiCtxKey).(string)
+}

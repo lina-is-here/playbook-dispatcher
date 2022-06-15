@@ -168,7 +168,7 @@ func (this *handler) onMessage(ctx context.Context, msg *k.Message) {
 	}
 }
 
-func satAssignmentWithCase(responseFull bool, updateHost db.RunHost) map[string]interface{} {
+func satAssignmentWithCase(ctx context.Context, responseFull bool, updateHost db.RunHost) map[string]interface{} {
 	satSequence, status, log := *updateHost.SatSequence, updateHost.Status, updateHost.Log
 
 	updateMap := map[string]interface{}{
@@ -186,11 +186,16 @@ func satAssignmentWithCase(responseFull bool, updateHost db.RunHost) map[string]
 
 func satUpdateRecord(ctx context.Context, tx *gorm.DB, responseFull bool, toUpdate []db.RunHost) error {
 	for _, runHost := range toUpdate {
-		updateResult := tx.Model(db.RunHost{})
+		resultValues := db.RunHost{}
+		updateResult := tx.Model(&resultValues)
 
 		if runHost.SatSequence != nil {
-			updateResult.Where("run_id = ? AND inventory_id = ? AND (sat_sequence IS NULL OR sat_sequence < ?)", runHost.RunID, runHost.InventoryID, *runHost.SatSequence).
-				Updates(satAssignmentWithCase(responseFull, runHost))
+			updateResult.Clauses(clause.Returning{}).Where("run_id = ? AND inventory_id = ? AND (sat_sequence IS NULL OR sat_sequence < ?)", runHost.RunID, runHost.InventoryID, *runHost.SatSequence).
+				Updates(satAssignmentWithCase(ctx, responseFull, runHost))
+
+			if *resultValues.SatSequence != *runHost.SatSequence {
+				instrumentation.PlaybookRunUpdateSequenceOrder(ctx, runHost.RunID)
+			}
 		} else {
 			// only update status when runHost.SatSequence is nil e.g. when runHost finished
 			updateResult.Where("run_id = ? AND inventory_id = ?", runHost.RunID, runHost.InventoryID).

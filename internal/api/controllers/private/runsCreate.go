@@ -23,6 +23,7 @@ func (this *controllers) ApiInternalRunsCreate(ctx echo.Context) error {
 	result := input.PMapRunCreated(func(runInputV1 RunInput) *RunCreated {
 		context := utils.WithAccount(ctx.Request().Context(), string(runInputV1.Account))
 		context = utils.WithRequestType(context, instrumentation.LabelAnsibleRequest)
+		context = utils.WithApiVersion(context, "v1")
 
 		recipient := parseValidatedUUID(string(runInputV1.Recipient))
 

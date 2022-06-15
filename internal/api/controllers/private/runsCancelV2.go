@@ -23,6 +23,7 @@ func (this *controllers) ApiInternalV2RunsCancel(ctx echo.Context) error {
 	result := input.PMapRunCanceled(func(cancelInputV2 CancelInputV2) *RunCanceled {
 		context := utils.WithOrgId(ctx.Request().Context(), string(cancelInputV2.OrgId))
 		context = utils.WithRequestType(context, instrumentation.LabelAnsibleRequest)
+		context = utils.WithApiVersion(context, "v2")
 
 		// translate org_id to EAN
 		// TODO: this will go away in the future

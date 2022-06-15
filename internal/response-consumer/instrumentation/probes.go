@@ -20,6 +20,11 @@ var (
 		Help: "The total number of run updates that did not match any known playbook run",
 	})
 
+	playbookSequenceOutOfOrder = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "response_consumer_playbook_run_sequence_out_of_order_total",
+		Help: "The total number of run updates that are consumed out of order",
+	})
+
 	errorTotal = promauto.NewCounterVec(prometheus.CounterOpts{
 		Name: "response_consumer_error_total",
 		Help: "The total number of errors during payloads processing",
@@ -50,6 +55,11 @@ func PlaybookRunUpdateMiss(ctx context.Context, status string) {
 func PlaybookRunUpdateError(ctx context.Context, err error, status string, runId uuid.UUID) {
 	utils.GetLogFromContext(ctx).Errorw("Error updating run", "runStatus", status, "error", err, "run_id", runId.String())
 	errorTotal.WithLabelValues(labelDbUpdate).Inc()
+}
+
+func PlaybookRunUpdateSequenceOrder(ctx context.Context, runId uuid.UUID) {
+	utils.GetLogFromContext(ctx).Errorw("Run update is out of order", "run_id", runId.String())
+	playbookSequenceOutOfOrder.Inc()
 }
 
 func UnmarshallIncomingMessageError(ctx context.Context, err error) {

@@ -34,6 +34,7 @@ func (this *controllers) ApiInternalV2RunsCreate(ctx echo.Context) error {
 	result := input.PMapRunCreated(func(runInputV2 RunInputV2) *RunCreated {
 		context := utils.WithOrgId(ctx.Request().Context(), string(runInputV2.OrgId))
 		context = utils.WithRequestType(context, getRequestTypeLabel(runInputV2))
+		context = utils.WithApiVersion(context, "v2")
 
 		recipient := parseValidatedUUID(string(runInputV2.Recipient))
 
