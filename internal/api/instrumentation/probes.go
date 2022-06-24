@@ -14,9 +14,6 @@ import (
 )
 
 const (
-	ApiV1 = "v1"
-	ApiV2 = "v2"
-
 	labelDb                    = "db"
 	labelPlaybookRunCreate     = "playbook_run_create"
 	labelPlaybookRunHostCreate = "playbook_run_host_create"
@@ -152,17 +149,13 @@ func Start() {
 	validationFailureTotal.WithLabelValues(labelTenantAnemic)
 	validationFailureTotal.WithLabelValues(labelSatellite)
 
-	errorTotal.WithLabelValues(labelDb, labelPlaybookRunCreate, LabelAnsibleRequest, ApiV1)
-	errorTotal.WithLabelValues(labelDb, labelPlaybookRunHostCreate, LabelAnsibleRequest, ApiV1)
-	errorTotal.WithLabelValues(labelDb, labelPlaybookRunRead, LabelAnsibleRequest, ApiV1)
+	errorTotal.WithLabelValues(labelDb, labelPlaybookRunCreate, LabelAnsibleRequest)
+	errorTotal.WithLabelValues(labelDb, labelPlaybookRunHostCreate, LabelAnsibleRequest)
+	errorTotal.WithLabelValues(labelDb, labelPlaybookRunRead, LabelAnsibleRequest)
 
-	errorTotal.WithLabelValues(labelDb, labelPlaybookRunCreate, LabelAnsibleRequest, ApiV2)
-	errorTotal.WithLabelValues(labelDb, labelPlaybookRunHostCreate, LabelAnsibleRequest, ApiV2)
-	errorTotal.WithLabelValues(labelDb, labelPlaybookRunRead, LabelAnsibleRequest, ApiV2)
-
-	errorTotal.WithLabelValues(labelDb, labelPlaybookRunCreate, LabelSatRequest, ApiV2)
-	errorTotal.WithLabelValues(labelDb, labelPlaybookRunHostCreate, LabelSatRequest, ApiV2)
-	errorTotal.WithLabelValues(labelDb, labelPlaybookRunRead, LabelSatRequest, ApiV2)
+	errorTotal.WithLabelValues(labelDb, labelPlaybookRunCreate, LabelAnsibleRequest)
+	errorTotal.WithLabelValues(labelDb, labelPlaybookRunHostCreate, LabelAnsibleRequest)
+	errorTotal.WithLabelValues(labelDb, labelPlaybookRunRead, LabelAnsibleRequest)
 
 	connectorErrorTotal.WithLabelValues(labelErrorGeneric, LabelAnsibleRequest)
 	connectorErrorTotal.WithLabelValues(labelErrorGeneric, LabelSatRequest)
