@@ -60,7 +60,7 @@ var (
 	runCreatedTotal = promauto.NewCounterVec(prometheus.CounterOpts{
 		Name: "api_run_created_total",
 		Help: "The total number of created playbook runs",
-	}, []string{"dispatching_service", "request"})
+	}, []string{"dispatching_service", "request", "api_version"})
 
 	runCanceledTotal = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "api_run_canceled_total",
