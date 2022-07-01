@@ -14,6 +14,9 @@ import (
 )
 
 const (
+	v1 = "v1"
+	v2 = "v2"
+
 	labelDb                    = "db"
 	labelPlaybookRunCreate     = "playbook_run_create"
 	labelPlaybookRunHostCreate = "playbook_run_host_create"
@@ -35,7 +38,7 @@ var (
 	errorTotal = promauto.NewCounterVec(prometheus.CounterOpts{
 		Name: "api_error_total",
 		Help: "The total number of errors",
-	}, []string{"type", "subtype", "request"})
+	}, []string{"type", "subtype", "request", "api_version"})
 
 	connectorErrorTotal = promauto.NewCounterVec(prometheus.CounterOpts{
 		Name: "api_cloud_connector_error_total",
@@ -149,13 +152,17 @@ func Start() {
 	validationFailureTotal.WithLabelValues(labelTenantAnemic)
 	validationFailureTotal.WithLabelValues(labelSatellite)
 
-	errorTotal.WithLabelValues(labelDb, labelPlaybookRunCreate, LabelAnsibleRequest)
-	errorTotal.WithLabelValues(labelDb, labelPlaybookRunHostCreate, LabelAnsibleRequest)
-	errorTotal.WithLabelValues(labelDb, labelPlaybookRunRead, LabelAnsibleRequest)
+	errorTotal.WithLabelValues(labelDb, labelPlaybookRunCreate, LabelAnsibleRequest, v1)
+	errorTotal.WithLabelValues(labelDb, labelPlaybookRunHostCreate, LabelAnsibleRequest, v1)
+	errorTotal.WithLabelValues(labelDb, labelPlaybookRunRead, LabelAnsibleRequest, v1)
 
-	errorTotal.WithLabelValues(labelDb, labelPlaybookRunCreate, LabelAnsibleRequest)
-	errorTotal.WithLabelValues(labelDb, labelPlaybookRunHostCreate, LabelAnsibleRequest)
-	errorTotal.WithLabelValues(labelDb, labelPlaybookRunRead, LabelAnsibleRequest)
+	errorTotal.WithLabelValues(labelDb, labelPlaybookRunCreate, LabelAnsibleRequest, v2)
+	errorTotal.WithLabelValues(labelDb, labelPlaybookRunHostCreate, LabelAnsibleRequest, v2)
+	errorTotal.WithLabelValues(labelDb, labelPlaybookRunRead, LabelAnsibleRequest, v2)
+
+	errorTotal.WithLabelValues(labelDb, labelPlaybookRunCreate, LabelSatRequest, v2)
+	errorTotal.WithLabelValues(labelDb, labelPlaybookRunHostCreate, LabelSatRequest, v2)
+	errorTotal.WithLabelValues(labelDb, labelPlaybookRunRead, LabelSatRequest, v2)
 
 	connectorErrorTotal.WithLabelValues(labelErrorGeneric, LabelAnsibleRequest)
 	connectorErrorTotal.WithLabelValues(labelErrorGeneric, LabelSatRequest)
