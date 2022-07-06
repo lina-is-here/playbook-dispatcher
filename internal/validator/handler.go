@@ -72,6 +72,7 @@ func (this *handler) onMessage(ctx context.Context, msg *kafka.Message) {
 		"topic", *msg.TopicPartition.Topic,
 		"partition", msg.TopicPartition.Partition,
 		"offset", msg.TopicPartition.Offset.String(),
+		"size", request.Size,
 	)
 
 	if err := this.validateRequest(&request); err != nil {
@@ -88,14 +89,12 @@ func (this *handler) initiateValidationWorker(
 	defer validateWg.Done()
 
 	for {
-		select {
-		case msg, open := <-this.validateChan:
-			if !open {
-				return
-			}
-			this.validationSteps(msg)
-		}
+		msg, open := <-this.validateChan
 
+		if !open {
+			return
+		}
+		this.validationSteps(msg)
 	}
 }
 
@@ -196,7 +195,11 @@ func (this *handler) validateContent(ctx context.Context, requestType string, da
 
 func validateSatHostUUID(line string) (err error) {
 	event := &messageModel.PlaybookSatRunResponseMessageYamlEventsElem{}
-	json.Unmarshal([]byte(line), &event)
+	err = json.Unmarshal([]byte(line), &event)
+
+	if err != nil {
+		return err
+	}
 
 	if event.Host != nil {
 		_, err = uuid.Parse(*event.Host)

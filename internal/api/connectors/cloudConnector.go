@@ -1,8 +1,11 @@
 package connectors
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"playbook-dispatcher/internal/common/constants"
 	"time"
@@ -17,12 +20,12 @@ import (
 
 const basePath = "/api/cloud-connector/v1/"
 
-type tenantKeyType int
-
 // used to pass account, org_id down to request editor (to set headers)
+type key int
+
 const (
-	accountKey = iota
-	orgIDKey   = iota
+	accountKey key = iota
+	orgIDKey   key = iota
 )
 
 type CloudConnectorClient interface {
@@ -81,6 +84,16 @@ func NewConnectorClient(cfg *viper.Viper) CloudConnectorClient {
 	return NewConnectorClientWithHttpRequestDoer(cfg, &httpClient)
 }
 
+func encodedBody(body PostMessageJSONRequestBody) (io.Reader, error) {
+	buf := &bytes.Buffer{}
+	encoder := json.NewEncoder(buf)
+	encoder.SetEscapeHTML(false)
+	if err := encoder.Encode(body); err != nil {
+		return nil, err
+	}
+	return buf, nil
+}
+
 func (this *cloudConnectorClientImpl) SendCloudConnectorRequest(
 	ctx context.Context,
 	account string,
@@ -99,7 +112,7 @@ func (this *cloudConnectorClientImpl) SendCloudConnectorRequest(
 		"recipient", recipientString,
 	)
 
-	res, err := this.client.PostMessageWithResponse(ctx, PostMessageJSONRequestBody{
+	body, err := encodedBody(PostMessageJSONRequestBody{
 		Account:   &account,
 		Directive: &directive,
 		Metadata: &MessageRequest_Metadata{
@@ -108,6 +121,12 @@ func (this *cloudConnectorClientImpl) SendCloudConnectorRequest(
 		Payload:   url,
 		Recipient: &recipientString,
 	})
+
+	if err != nil {
+		return nil, false, err
+	}
+
+	res, err := this.client.PostMessageWithBodyWithResponse(ctx, "application/json", body)
 
 	if err != nil {
 		return nil, false, err

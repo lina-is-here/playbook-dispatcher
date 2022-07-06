@@ -15,13 +15,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-func getCorrelationId(cfg *viper.Viper) uuid.UUID {
-	if cfg.GetBool("demo.mode") {
-		return uuid.UUID{}
-	}
-	return uuid.New()
-}
-
 func getLabels(input *public.Labels) map[string]string {
 	if input == nil {
 		return map[string]string{}
@@ -117,6 +110,10 @@ func validateSatelliteFields(runInput RunInputV2) error {
 
 	if runInput.Hosts == nil {
 		return fmt.Errorf("Hosts need to be defined")
+	}
+
+	if len(*runInput.Hosts) == 0 {
+		return fmt.Errorf("Hosts cannot be empty")
 	}
 
 	for _, host := range *runInput.Hosts {

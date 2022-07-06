@@ -300,7 +300,7 @@ var _ = Describe("runsCreate V2", func() {
 			minimalV2Payload(uuid.New()),
 		}
 
-		ctx := context.WithValue(test.TestContext(), pskKey, "9yh9WuXWDj")
+		ctx := context.WithValue(test.TestContext(), pskKey, "9yh9WuXWDj") //nolint:staticcheck
 		resp, err := client.ApiInternalV2RunsCreate(ctx, payload)
 		Expect(err).ToNot(HaveOccurred())
 		res, err := ParseApiInternalRunsCreateResponse(resp)
@@ -395,6 +395,11 @@ var _ = Describe("runsCreate V2", func() {
 		Entry(
 			"invalid property (web console url)",
 			`[{"recipient": "3831fec2-1875-432a-bb58-08e71908f0e6", "org_id": "5318290", "principal": "test-user", "url": "http://example.com", "name": "Red Hat Playbook", "web_console_url": ""}]`,
+			"Minimum string length is 1",
+		),
+		Entry(
+			"invalid property (ansible host)",
+			`[{"recipient": "3831fec2-1875-432a-bb58-08e71908f0e6", "org_id": "5318290", "principal": "test-user", "url": "http://example.com", "name": "Red Hat Playbook", "hosts": [{"ansible_host": ""}]}]`,
 			"Minimum string length is 1",
 		),
 
